@@ -303,7 +303,7 @@ with tab5:
         
         c1.divider()
 
-        cluster_option = c1.segmented_control("Select Cluster/s", [1, 2, 3, 4], default=1, selection_mode="multi")
+        cluster_option = c1.segmented_control("Select Cluster/s", [1, 2, 3, 4], default=[1,2,3,4], selection_mode="multi")
         cluster_option  = list(map(lambda x: x - 1, cluster_option))
 
         c1.divider()
