@@ -205,8 +205,6 @@ with tab2:
         # Display plot
         st.plotly_chart(fig, use_container_width=True)
 
-    st.divider()
-
     footerleft, footerright = st.columns(2)
 
     with footerleft:
