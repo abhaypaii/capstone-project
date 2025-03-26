@@ -4,12 +4,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 import numpy as np
+import statsmodels.api as sm
 
 st.set_page_config(layout="wide")
 
 st.title("Capstone Data Exploration")
 
-tab1, tab2, tab3, tab4 = st.tabs(['Daily Activity', "Cluster Analysis", "Cluster Time Series Data", "Correlation"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(['Daily Activity', "Cluster Analysis", "Cluster Time Series Data", "Correlation", "Regression"])
 
 
 def column_filter_single(df, option, column_mapping, common_columns):
@@ -44,7 +45,7 @@ def date_filter(df, date_range):
 
 #DAILY ACTIVTIY
 with tab1:
-    df = pd.read_csv("cleaned_data/DailyActivity.csv")
+    df = pd.read_csv("CleanedData/DailyActivity.csv")
 
     #Filter columns
     columns = ["Steps", "Calories", "Tracked Distance", "Distance Breakdown", "Minutes Breakdown"]
@@ -130,8 +131,8 @@ with tab1:
 
 #CLUSTER 3D PLOT
 with tab2:
-    clusters = pd.read_csv("cleaned_data/Clusters.csv")
-    df =  pd.read_csv("cleaned_data/Customer_Profile.csv") 
+    clusters = pd.read_csv("CleanedData/Clusters.csv")
+    df =  pd.read_csv("CleanedData/Customer_Profile.csv") 
     
     clusters['Cluster'] = clusters['Cluster'] + 1
 
@@ -218,9 +219,9 @@ with tab2:
 
 #CLUSTER TIME SERIES DATA
 with tab3:
-    df = pd.read_csv("cleaned_data/DailyActivity_Clustered.csv")
+    df = pd.read_csv("CleanedData/DailyActivity_Clustered.csv")
     cluster = df.drop(columns=["Id", "Day_of_Week"]).groupby(["ActivityDate", "Cluster"]).mean().reset_index()
-    profile =  pd.read_csv("cleaned_data/Customer_Profile.csv") 
+    profile =  pd.read_csv("CleanedData/Customer_Profile.csv") 
 
     c1, c2, c3, c4 = st.columns(4)
     counts = profile['Cluster'].value_counts().sort_index(ascending=True)
@@ -241,7 +242,7 @@ with tab3:
 
 #Correlation
 with tab4:
-    df = pd.read_csv("cleaned_data/Customer_Profile.csv")
+    df = pd.read_csv("CleanedData/Customer_Profile.csv")
 
     df = df.drop(columns=["Id", "NaN", "Cluster"]).reset_index().drop(columns="index")
 
@@ -269,5 +270,88 @@ with tab4:
 
     with st.expander("View Data"):
         st.dataframe(df)
+
+
+with tab5:
+
+        df = pd.read_csv("CleanedData/Customer_Profile.csv")
+
+        if 'reg_var' not in st.session_state:
+            st.session_state.reg_var = df.drop(columns=["Id", "Cluster", "NaN"]).columns
+        
+        c1, c3, c2 = st.columns([1, 0.2,2])
+
+        with c1:
+            with st.expander("Select Target Variables"):
+                dependent = st.pills(label="",options=df.drop(columns=["Id", "Cluster", "NaN", "most_intense_day"]).columns, selection_mode="single", default="TotalSteps")
+
+
+        with c1:
+            with st.expander("Select Predictor Variables"):
+                independent = st.pills("",options=df.drop(columns=["Id", "Cluster", "NaN", 'most_intense_day']).columns, selection_mode="multi", default="TotalDistance")
+        
+        c1.divider()
+
+        cluster_option = c1.segmented_control("Select Cluster/s", [1, 2, 3, 4], default=1, selection_mode="multi")
+        cluster_option  = list(map(lambda x: x - 1, cluster_option))
+
+        c1.divider()
+    
+
+        if dependent and independent and cluster_option:
+            
+            data = df[df['Cluster'].isin(cluster_option)]
+
+            # Add constant for intercept
+            X = sm.add_constant(data[independent])  
+            y = data[dependent]
+
+            # Fit the model
+            model = sm.OLS(y, X).fit()
+
+            coefficients = model.params
+
+            # Get intercept (constant term)
+            intercept = coefficients[0]
+
+            # Get independent variables
+            independent_vars = coefficients.index[1:]  # Exclude intercept
+
+            # Create equation string
+            equation = f"Y = {intercept:.4f} "  # Round for readability
+            for var in independent_vars:
+                coef = coefficients[var]
+                equation += f"+ ({coef:.4f} * {var}) "
+
+            yaxis = c1.pills("Select Predictor to plot against "+dependent, independent, selection_mode="single", default=independent[0])
+            x_plot = data[dependent]
+            y_plot = data[yaxis]
+            coefficients = np.polyfit(x_plot, y_plot, 1)  # 1 for linear fit
+            polynomial = np.poly1d(coefficients)
+            y_hat = polynomial(x_plot)
+
+            fig = px.scatter(data, x=dependent, y=yaxis, title=yaxis+" v/s "+dependent, height=350)
+            fig.add_trace(go.Scatter(x=x_plot, y=y_hat, mode='lines', name='Line of Best Fit'))
+            
+            #fig.add_trace(go.Scatter(x=df[dependent], y=df['y_pred'], mode='lines', name='OLS Fit Line', line=dict(color='red', width=3)))
+            c2.plotly_chart(fig)
+            c2.divider()
+            with c2:
+                subcol1, subcol2 = st.columns([1,4])
+                subcol1.metric("R-Squared Value", value=round(model.rsquared, 3))
+                subcol2.write("Regression Equation: ")
+                subcol2.write(equation)
+
+
+
+
+            # Summary with p-values, R-squared, etc.
+            with st.expander("Stats Summary for Nerds"):
+                st.write(model.summary())
+        else:
+            c2.error("Make at least one selection for each input")
+
+        
+
 
 # WORK ON DAY OF WEEK FOR CLUSTER TIME SERIES
