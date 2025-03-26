@@ -45,7 +45,7 @@ def date_filter(df, date_range):
 
 #DAILY ACTIVTIY
 with tab1:
-    df = pd.read_csv("CleanedData/DailyActivity.csv")
+    df = pd.read_csv("cleaned_data/DailyActivity.csv")
 
     #Filter columns
     columns = ["Steps", "Calories", "Tracked Distance", "Distance Breakdown", "Minutes Breakdown"]
@@ -131,8 +131,8 @@ with tab1:
 
 #CLUSTER 3D PLOT
 with tab2:
-    clusters = pd.read_csv("CleanedData/Clusters.csv")
-    df =  pd.read_csv("CleanedData/Customer_Profile.csv") 
+    clusters = pd.read_csv("cleaned_data/Clusters.csv")
+    df =  pd.read_csv("cleaned_data/Customer_Profile.csv") 
     
     clusters['Cluster'] = clusters['Cluster'] + 1
 
@@ -219,9 +219,9 @@ with tab2:
 
 #CLUSTER TIME SERIES DATA
 with tab3:
-    df = pd.read_csv("CleanedData/DailyActivity_Clustered.csv")
+    df = pd.read_csv("cleaned_data/DailyActivity_Clustered.csv")
     cluster = df.drop(columns=["Id", "Day_of_Week"]).groupby(["ActivityDate", "Cluster"]).mean().reset_index()
-    profile =  pd.read_csv("CleanedData/Customer_Profile.csv") 
+    profile =  pd.read_csv("cleaned_data/Customer_Profile.csv") 
 
     c1, c2, c3, c4 = st.columns(4)
     counts = profile['Cluster'].value_counts().sort_index(ascending=True)
@@ -242,7 +242,7 @@ with tab3:
 
 #Correlation
 with tab4:
-    df = pd.read_csv("CleanedData/Customer_Profile.csv")
+    df = pd.read_csv("cleaned_data/Customer_Profile.csv")
 
     df = df.drop(columns=["Id", "NaN", "Cluster"]).reset_index().drop(columns="index")
 
@@ -274,7 +274,7 @@ with tab4:
 
 with tab5:
 
-        df = pd.read_csv("CleanedData/Customer_Profile.csv")
+        df = pd.read_csv("cleaned_data/Customer_Profile.csv")
 
         if 'reg_var' not in st.session_state:
             st.session_state.reg_var = df.drop(columns=["Id", "Cluster", "NaN"]).columns
