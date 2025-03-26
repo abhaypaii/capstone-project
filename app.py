@@ -6,6 +6,7 @@ import plotly.figure_factory as ff
 import numpy as np
 import statsmodels.api as sm
 
+
 st.set_page_config(layout="wide")
 
 st.title("Capstone Data Exploration")
@@ -293,12 +294,12 @@ with tab5:
         c1, c3, c2 = st.columns([1, 0.2,2])
 
         with c1:
-            with st.expander("Select Target Variables"):
+            with st.expander("Target (Dependent) Variable"):
                 dependent = st.pills(label="",options=df.drop(columns=["Id", "Cluster", "NaN", "most_intense_day"]).columns, selection_mode="single", default="TotalSteps")
 
 
         with c1:
-            with st.expander("Select Predictor Variables"):
+            with st.expander("Predictor (Independent) Variables"):
                 independent = st.pills("",options=df.drop(columns=["Id", "Cluster", "NaN", 'most_intense_day']).columns, selection_mode="multi", default="TotalDistance")
         
         c1.divider()
@@ -341,17 +342,41 @@ with tab5:
             polynomial = np.poly1d(coefficients)
             y_hat = polynomial(x_plot)
 
+            correlation = np.corrcoef(x_plot, y_plot)[0, 1]
+
             fig = px.scatter(data, x=dependent, y=yaxis, title=yaxis+" v/s "+dependent, height=350)
-            fig.add_trace(go.Scatter(x=x_plot, y=y_hat, mode='lines', name='Line of Best Fit'))
+            fig.update_traces(marker=dict(color='black'))
+            fig.add_trace(go.Scatter(x=x_plot, y=y_hat, mode='lines', showlegend=False, marker=dict(color='red')))
+            fig.update_layout(
+                    autosize=True,
+                    margin=dict(l=50, r=50, b=0, t=50),
+                    showlegend=False,
+                    scene=dict(
+                        xaxis_title=cols[0],
+                        yaxis_title=cols[1],
+                        zaxis_title=cols[2]
+                    )
+                )
             
-            #fig.add_trace(go.Scatter(x=df[dependent], y=df['y_pred'], mode='lines', name='OLS Fit Line', line=dict(color='red', width=3)))
-            c2.plotly_chart(fig)
-            c2.divider()
             with c2:
-                subcol1, subcol2 = st.columns([1,4])
-                subcol1.metric("R-Squared Value", value=round(model.rsquared, 3))
-                subcol2.write("Regression Equation: ")
-                subcol2.write(equation)
+                #fig.add_trace(go.Scatter(x=df[dependent], y=df['y_pred'], mode='lines', name='OLS Fit Line', line=dict(color='red', width=3)))
+                leftcol, rightcol = st.columns([3, 1])
+                leftcol.plotly_chart(fig)
+                rightcol.metric("Correlation Co-efficient", value=round(correlation, 3), border=True)
+                rightcol.metric("R-Squared Value", value=round(model.rsquared, 3), border=True)
+
+                if model.rsquared < 0.3:
+                    rightcol.metric("Model Strength", value="Weak",border=True)
+                elif model.rsquared > 0.3 and model.rsquared < 0.7:
+                    rightcol.metric("Model Strength", value="Moderate", border=True)
+                elif model.rsquared > 0.7 and model.rsquared < 0.9:
+                    rightcol.metric("Model Strength", value="Strong", border=True)
+                else:
+                    rightcol.metric("Model Strength", value="Perfect", border=True)
+                
+                with st.container(border=True):
+                    st.markdown("**Regression Equation:**")
+                    st.write(equation)
 
 
 
