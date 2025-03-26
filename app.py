@@ -221,7 +221,37 @@ with tab2:
 with tab3:
     df = pd.read_csv("cleaned_data/DailyActivity_Clustered.csv")
     cluster = df.drop(columns=["Id", "Day_of_Week"]).groupby(["ActivityDate", "Cluster"]).mean().reset_index()
+    cluster_day = df.drop(columns=["Id", "ActivityDate"]).groupby(["Day_of_Week", "Cluster"]).mean().reset_index()
+    day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    cluster_day['Day_of_Week'] = pd.Categorical(cluster_day['Day_of_Week'], categories=day_order, ordered=True)
+    cluster_day = cluster_day.sort_values('Day_of_Week')
+
     profile =  pd.read_csv("cleaned_data/Customer_Profile.csv") 
+
+    c1, c2, c3, c4 = st.columns(4)
+    counts = profile['Cluster'].value_counts().sort_index(ascending=True)
+    c1.metric('Cluster 1', value=str(counts.iloc[0]+1) + " customers")
+    c2.metric('Cluster 2', value=str(counts.iloc[1]+1) + " customers")
+    c3.metric('Cluster 3', value=str(counts.iloc[2]+1) + " customers")
+    c4.metric('Cluster 4', value=str(counts.iloc[3]+1) + " customers")
+
+    col1, col2 = st.columns([2,1])
+
+    with col2:
+        time = st.segmented_control("", ["Date", "Day of Week"], default="Date", selection_mode="single")
+        option = st.pills("Select a column", options=cluster.drop(columns=["ActivityDate", "Cluster"]).columns, selection_mode="single", default="TotalSteps")
+        
+    with col1:    
+        if time == "Date":
+            fig3 = px.line(cluster, x="ActivityDate", y=option, color='Cluster')
+            fig3.update_layout(yaxis = dict(showgrid=False))
+        elif time == "Day of Week":
+            fig3 = px.line(cluster_day, x="Day_of_Week", y=option, color='Cluster')
+            fig3.update_layout(yaxis = dict(showgrid=False))
+
+        
+        st.plotly_chart(fig3)
+
 
     c1, c2, c3, c4 = st.columns(4)
     counts = profile['Cluster'].value_counts().sort_index(ascending=True)
