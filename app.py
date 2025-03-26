@@ -253,13 +253,6 @@ with tab3:
         st.plotly_chart(fig3)
 
 
-    c1, c2, c3, c4 = st.columns(4)
-    counts = profile['Cluster'].value_counts().sort_index(ascending=True)
-    c1.metric('Cluster 1', value=str(counts.iloc[0]+1) + " customers")
-    c2.metric('Cluster 2', value=str(counts.iloc[1]+1) + " customers")
-    c3.metric('Cluster 3', value=str(counts.iloc[2]+1) + " customers")
-    c4.metric('Cluster 4', value=str(counts.iloc[3]+1) + " customers")
-
     col1, col2 = st.columns([2,1])
 
     with col2:
