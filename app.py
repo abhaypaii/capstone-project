@@ -177,7 +177,7 @@ with tab2:
         # Adjust layout for padding (increase margins)
         fig.update_layout(
             autosize=True,
-            margin=dict(l=50, r=50, b=50, t=20),
+            margin=dict(l=50, r=50, b=60, t=20),
             showlegend=False,
             scene=dict(
                 xaxis_title=cols[0],
@@ -220,6 +220,7 @@ with tab2:
 #CLUSTER TIME SERIES DATA
 with tab3:
     df = pd.read_csv("cleaned_data/DailyActivity_Clustered.csv")
+
     cluster = df.drop(columns=["Id", "Day_of_Week"]).groupby(["ActivityDate", "Cluster"]).mean().reset_index()
     cluster_day = df.drop(columns=["Id", "ActivityDate"]).groupby(["Day_of_Week", "Cluster"]).mean().reset_index()
     day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -250,17 +251,6 @@ with tab3:
             fig3.update_layout(yaxis = dict(showgrid=False))
 
         
-        st.plotly_chart(fig3)
-
-
-    col1, col2 = st.columns([2,1])
-
-    with col2:
-        option = st.pills("Select a column", options=cluster.drop(columns=["ActivityDate", "Cluster"]).columns, selection_mode="single", default="TotalSteps")
-        
-    with col1:    
-        fig3 = px.line(cluster, x="ActivityDate", y=option, color='Cluster')
-        fig3.update_layout(yaxis = dict(showgrid=False))
         st.plotly_chart(fig3)
 
 #Correlation
