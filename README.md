@@ -43,5 +43,29 @@ To identify meaningful customer segments from health tracker data (sleep, activi
 
 ---
 
-## 📁 Project Structure
+## 📈 Results
+
+- **4 clear clusters** emerged, distinguishable by sleep behavior, activity levels, and caloric expenditure.
+- **Imputation with XGBoost** significantly improved model performance and data integrity.
+- **Strategic takeaways** were framed for a hypothetical Fitbit marketing team, showcasing the business value of AI-driven segmentation.
+
+---
+
+## 📬 Future Enhancements
+
+- Incorporate **prescriptive analytics** (e.g., optimization models for engagement).
+- Build an interactive **Streamlit dashboard** for real-time persona exploration.
+- Explore **anomaly detection** for detecting unusual health behavior patterns.
+
+---
+
+## 💼 Relevance to Industry
+
+This project demonstrates practical expertise in:
+- **Supervised and Unsupervised ML**
+- **Time-series and behavioral data analysis**
+- **Consumer segmentation for strategic targeting**
+- Aligns with real-world applications in health tech, CPG, and product analytics.
+
+
 
