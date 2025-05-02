@@ -1,5 +1,5 @@
 
-# 🧠 Fitbit Behavioral Clustering & Regression Modeling
+# 🧠 Fitness Tracker Marketing Strategy using Behavioral Clustering & Regression Modeling
 
 This project leverages machine learning techniques to segment Fitbit users into behavioral groups using unsupervised learning and address missing health data using supervised regression. The end goal is to generate actionable consumer insights to support targeted marketing strategies — mimicking a real-world consumer packaged goods (CPG) application.
 
